@@ -60,4 +60,35 @@ v2v4.points <- csPoints("v2v4")
 
 #Count the number of magazine checks in the Pre-CS and CS periods 
 
-v1.checks <- countResp(v1.points, magCheckTimes)
+v1.checks <- lapply(v1.points, countResp, y = magCheckTimes)
+v2.checks <- lapply(v2.points, countResp, y = magCheckTimes)
+v1v3.checks <- lapply(v1v3.points, countResp, y = magCheckTimes)
+v2v4.checks <- lapply(v2v4.points, countResp, y = magCheckTimes)
+
+#Find the ITI start and CS-end points
+
+v1.long.points <- csLongPoints("v1")
+v2.long.points <- csLongPoints("v2")
+v1v3.long.points <- csLongPoints("v1v3")
+v2v4.long.points <- csLongPoints("v2v4")
+
+#Count number of magazine checks in the ITI and CS periods
+
+v1.long.checks <- lapply(v1.long.points, countResp, y = magCheckTimes)
+v2.long.checks <- lapply(v2.long.points, countResp, y = magCheckTimes)
+v1v3.long.checks <- lapply(v1v3.long.points, countResp, y = magCheckTimes)
+v2v4.long.checks <- lapply(v2v4.long.points, countResp, y = magCheckTimes)
+
+##Collapse within cue types
+
+exc.longpre.checks <- colMeans( # find the column means
+  rbind( # bind the two vectors together by their rows
+    sapply(v1.long.checks, "[", c(1)), 
+    sapply(v2.long.checks, "[", c(1)))) # extract the first element from each vector in the list (i.e. preCS responding) for each of the two excitatory cues (v1, v2)
+in.longpre.checks <- colMeans(
+  rbind(
+    sapply(v1v3.long.checks, "[", c(1)), 
+    sapply(v2v4.long.checks, "[", c(1)))) # does the same extraction and averaging as for the excitors. With inhibtiory cues (v1v3, v2v4)
+
+exc.cs.checks <- colMeans(rbind(sapply(v1.long.checks, "[", c(2)), sapply(v2.long.checks, "[", c(2))))
+in.cs.checks <-  colMeans(rbind(sapply(v1v3.long.checks, "[", c(2)), sapply(v2v4.long.checks, "[", c(2))))
