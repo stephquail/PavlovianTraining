@@ -7,6 +7,8 @@
 #   - participant number (to insert data into appropriate row when looping through participants for analysis)
 
 CI101 <- c("R/data/CI101.log", "CI101", 1)
+CI102 <- c("R/data/CI102.log", "CI102", 2)
+CI103 <- c("R/data/CI103.log", "CI103", 3)
 
 #find times of text strings
 findTime <- function(x){
@@ -28,11 +30,23 @@ preTime <- function(x){
   x - 5
 }
 
+#Calculates start of ITI prior to CS onset (30s before CS onset)
+itiTime <- function(x){
+  x - 30
+}
+
 #timepoints for each CStrial
 csPoints <- function(x){
   assign(paste0(x,".ends"), lapply(get(paste0(x,".times")), endTime)) #get end times of each cs(5s after onset)
   assign(paste0(x, ".pres"), lapply(get(paste0(x, ".times")), preTime)) #get precs start times (5s before onset)
   assign(paste0(x, ".points"), mapply(get(paste0(x, ".pres")), get(paste0(x, ".times")), get(paste0(x, ".ends")), FUN = list, SIMPLIFY=FALSE))
+}
+
+#timepoints for each whole ITI + CS trial
+csLongPoints <- function(x){
+  assign(paste0(x,".ends"), lapply(get(paste0(x,".times")), endTime)) #get end times of each cs(5s after onset)
+  assign(paste0(x, ".itistarts"), lapply(get(paste0(x, ".times")), itiTime)) #get precs start times (5s before onset)
+  assign(paste0(x, ".points"), mapply(get(paste0(x, ".itistarts")), get(paste0(x, ".times")), get(paste0(x, ".ends")), FUN = list, SIMPLIFY=FALSE))
 }
 
 #Counts the number of responses made in during the PreCS and CS periods
