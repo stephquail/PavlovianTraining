@@ -9,6 +9,8 @@
 CI101 <- c("R/data/CI101.log", "CI101", 1)
 CI102 <- c("R/data/CI102.log", "CI102", 2)
 CI103 <- c("R/data/CI103.log", "CI103", 3)
+CI104 <- c("R/data/CI104.log", "CI104", 4)
+CI105 <- c("R/data/CI105.log", "CI105", 5)
 
 #find times of text strings
 findTime <- function(x){
@@ -52,4 +54,11 @@ csLongPoints <- function(x){
 #Counts the number of responses made in during the PreCS and CS periods
 countResp <- function(x, y){
   c(sum(y > x[1] & y < x[2]), sum(y > x[2] & y < x[3]))
+}
+
+#assigns an empty matrix to a variable
+#y = number of rows of the empty matrix
+#z = number of columns of the empty matrix
+createDF <- function(x,y,z){
+  x <- matrix(nrow = length(y), ncol = z)
 }
