@@ -173,10 +173,13 @@ lines <- c(1,5,1,5)
 
 group.checks_WS <-  summarySEwithin(long.group.checks, measurevar="checks", withinvars= c("cues", "time", "cue_time", "trial"), idvar="ID", na.rm=FALSE, conf.interval=.95)
 
+
+#Graph that actually (almost) does what I want.
+#Split by colour on type of cue (excitor vs. inhibitor)
+#Line type by time (ITI vs. CS)
 group.checks.graph <- ggplot(data = group.checks_WS, aes(x=trial, y=checks, group= cue_time, colour = cues)) +
   geom_point(size = 2.5) + 
   geom_line(aes(linetype = time), size = 1.1) +
   scale_linetype_manual(values = lines) +
   xlab("Trial") + ylab("Magazine Checks (/s)")
 
-non.learning.example <- ggplot(data = )
