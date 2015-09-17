@@ -13,7 +13,9 @@
 # Load libraries needed for this analysis
 library(ggplot2)
 library(plyr)
+library(reshape2)
 library(grid)
+library(stringr)
 
 # Load functions for this analysis
 source("R/functions.R")
@@ -21,7 +23,7 @@ source("R/functions.R")
 #Vectors of participant data paths, and IDs created in functions
 #Create a list of participant info vectors
 
-ID <- list(CI101, CI102, CI103, CI104, CI105)
+ID <- list(CI101, CI102, CI103, CI104, CI105, CI106, CI107)
 
 #Create Empty Vectors
 #These empty vectors will be filled in with individual participant information as the analysis loops through each participant
@@ -114,12 +116,13 @@ for(i in ID){
   # For Short PreCS and CS checking /5
   
   i.exc.ITI.sec <- exc.longITI.checks/30
-  i.in.ITI.sec <- exc.longITI.checks/30
+  i.in.ITI.sec <- in.longITI.checks/30
   
   i.exc.cs.sec <- exc.cs.checks/5
   i.in.cs.sec <- in.cs.checks/5
   
   # Insert adjusted checking rates into empty vectors
+  participant[as.numeric(i[3])] <- i[[2]]
   exc.ITI.sec[as.numeric(i[3]),] <- i.exc.ITI.sec
   in.ITI.sec[as.numeric(i[3]),] <- i.in.ITI.sec
   
@@ -127,3 +130,53 @@ for(i in ID){
   in.cs.sec[as.numeric(i[3]),] <- i.in.cs.sec
 }
 
+group.checks <- list(exc.ITI.sec, exc.cs.sec, in.ITI.sec, in.cs.sec)
+group.names <- c("exc.ITI", "exc.cs", "in.ITI", "in.cs")
+names(group.checks) <- group.names
+
+#Wide data for ITI and CS checking for Excitors and Inhibitors
+
+trial.ids <- c("ID", 1:14)
+group.checks <- lapply(group.checks, addID, id = participant, cols = trial.ids)
+wide.group.checks <- do.call("rbind", group.checks)
+rowtype <- c(rownames(wide.group.checks))
+wide.group.checks <- data.frame(wide.group.checks, rowtype, row.names = NULL)
+colnames(wide.group.checks) <- c("ID", 1:14, "rowtype")
+
+#Convert wide data to long data format (to allow ggplot graphing)
+
+long.group.checks <- melt(wide.group.checks, 
+                          id.vars = c("ID", "rowtype"),
+                          variable.name = "trial",
+                          value.name = "checks")
+long.group.checks$factor <- str_split_fixed(long.group.checks$rowtype, "\\.",3)
+long.group.checks$cues <- as.factor(long.group.checks$factor[,1])
+long.group.checks$time <- as.factor(long.group.checks$factor[,2])
+long.group.checks$end <- as.factor(long.group.checks$factor[,3])
+
+#drop unneded columns
+long.group.checks$factor <- NULL
+long.group.checks$rowtype <- NULL
+long.group.checks$end <- NULL
+
+long.group.checks <- within(long.group.checks,{
+  cue_time <- do.call(paste, c(long.group.checks[c("cues", "time")], sep = "."))
+  cue_time <- as.factor(cue_time)
+})
+
+##GRAPH Trial DATA
+#set up vectors for formatting fucntion
+linecols <- c("red2", "red2", "dodgerblue", "dodgerblue", "green3")
+shapecols <- c("red2", "white", "dodgerblue", "white", "green3")
+shapes <- c(21, 21, 24, 24, 23)
+lines <- c(1,5,1,5)
+
+group.checks_WS <-  summarySEwithin(long.group.checks, measurevar="checks", withinvars= c("cues", "time", "cue_time", "trial"), idvar="ID", na.rm=FALSE, conf.interval=.95)
+
+group.checks.graph <- ggplot(data = group.checks_WS, aes(x=trial, y=checks, group= cue_time, colour = cues)) +
+  geom_point(size = 2.5) + 
+  geom_line(aes(linetype = time), size = 1.1) +
+  scale_linetype_manual(values = lines) +
+  xlab("Trial") + ylab("Magazine Checks (/s)")
+
+non.learning.example <- ggplot(data = )
