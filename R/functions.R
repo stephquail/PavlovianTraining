@@ -13,6 +13,8 @@ CI104 <- c("R/data/CI104.log", "CI104", 4)
 CI105 <- c("R/data/CI105.log", "CI105", 5)
 CI106 <- c("R/data/CI106.log", "CI106", 6)
 CI107 <- c("R/data/CI107.log", "CI107", 7)
+CI108 <- c("R/data/CI108.log", "CI108", 8)
+CI109 <- c("R/data/CI109.log", "CI109", 9)
 
 #find times of text strings
 findTime <- function(x){
