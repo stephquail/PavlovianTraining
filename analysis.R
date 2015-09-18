@@ -23,7 +23,7 @@ source("R/functions.R")
 #Vectors of participant data paths, and IDs created in functions
 #Create a list of participant info vectors
 
-ID <- list(CI101, CI102, CI103, CI104, CI105, CI106, CI107)
+ID <- list(CI101, CI102, CI103, CI104, CI105, CI106, CI107, CI108, CI109)
 
 #Create Empty Vectors
 #These empty vectors will be filled in with individual participant information as the analysis loops through each participant
@@ -177,9 +177,18 @@ group.checks_WS <-  summarySEwithin(long.group.checks, measurevar="checks", with
 #Graph that actually (almost) does what I want.
 #Split by colour on type of cue (excitor vs. inhibitor)
 #Line type by time (ITI vs. CS)
+
 group.checks.graph <- ggplot(data = group.checks_WS, aes(x=trial, y=checks, group= cue_time, colour = cues)) +
-  geom_point(size = 2.5) + 
+  geom_point(size = 2.6) + 
   geom_line(aes(linetype = time), size = 1.1) +
   scale_linetype_manual(values = lines) +
-  xlab("Trial") + ylab("Magazine Checks (/s)")
+  xlab("Trial") + ylab("Magazine Checks (/second)") +
+  theme(legend.key.size = unit(0.6, "in"), #sets the size of the legend key
+        legend.text= element_text(size=14), #sets the size of the legend text
+        legend.title = element_text(size=16), #legend title text size
+        axis.title.y = element_text(size=16), # axes text size
+        axis.title.x = element_text(size=16))
 
+pdf("R/output/graphs/groupChecks.pdf")
+print(group.checks.graph)
+dev.off()
