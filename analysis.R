@@ -4,7 +4,7 @@
 #   - Magazine Checks: Participant checking to see if any snacks dropped by vending machine
 #   - Outcome Collected: Participant collecting dropped snack
 #   - Excitatory Cues Onsets
-#   - Compound Inhibitorhy Cues Onsets
+#   - Compound Inhibitory Cues Onsets
 
 # CS durations 5s (Outcome onset 2s after CS onset, duration 3s (or until collected))
 # ITI duration 30s
@@ -23,7 +23,7 @@ source("R/functions.R")
 #Vectors of participant data paths, and IDs created in functions
 #Create a list of participant info vectors
 
-ID <- list(CI101, CI102, CI103, CI104, CI105, CI106, CI107, CI108, CI109)
+ID <- list(CI101, CI102, CI103, CI104, CI105, CI106, CI107, CI108, CI109, CI110, CI111, CI112, CI113, CI114, CI115, CI116, CI117, CI118, CI119, CI120, CI121, CI122)
 
 #Create Empty Vectors
 #These empty vectors will be filled in with individual participant information as the analysis loops through each participant
@@ -166,9 +166,7 @@ long.group.checks <- within(long.group.checks,{
 
 ##GRAPH Trial DATA
 #set up vectors for formatting fucntion
-linecols <- c("red2", "red2", "dodgerblue", "dodgerblue", "green3")
-shapecols <- c("red2", "white", "dodgerblue", "white", "green3")
-shapes <- c(21, 21, 24, 24, 23)
+linecols <- c("red2", "dodgerblue")
 lines <- c(1,5,1,5)
 
 group.checks_WS <-  summarySEwithin(long.group.checks, measurevar="checks", withinvars= c("cues", "time", "cue_time", "trial"), idvar="ID", na.rm=FALSE, conf.interval=.95)
@@ -178,17 +176,40 @@ group.checks_WS <-  summarySEwithin(long.group.checks, measurevar="checks", with
 #Split by colour on type of cue (excitor vs. inhibitor)
 #Line type by time (ITI vs. CS)
 
+
 group.checks.graph <- ggplot(data = group.checks_WS, aes(x=trial, y=checks, group= cue_time, colour = cues)) +
   geom_point(size = 2.6) + 
   geom_line(aes(linetype = time), size = 1.1) +
   scale_linetype_manual(values = lines) +
+  scale_colour_manual(values =linecols) + #makes excitors red and inhibitors blue
   xlab("Trial") + ylab("Magazine Checks (/second)") +
   theme(legend.key.size = unit(0.6, "in"), #sets the size of the legend key
         legend.text= element_text(size=14), #sets the size of the legend text
         legend.title = element_text(size=16), #legend title text size
         axis.title.y = element_text(size=16), # axes text size
-        axis.title.x = element_text(size=16))
+        axis.title.x = element_text(size=16)) +
+  geom_errorbar(aes(ymin=checks - se, ymax = checks + se),
+                size=.3,
+                width=.2) 
 
-pdf("R/output/graphs/groupChecks.pdf")
+pdf("R/output/figures/groupChecks.pdf")
 print(group.checks.graph)
 dev.off()
+
+
+#Statistics for the Pavlovian training
+# Feature Negative Conditioned Inhibition
+
+# (Cue) x (Time) x (Trial)
+# Two Cues: Excitors, Inhibitors
+# Two Times: Pre-CS, CS
+# 14 Trials
+
+# long.group.checks is the long df used
+
+#ANOVA model
+
+group.checks.aov <- aov(checks ~ cues*time*trial + Error(ID/(cues*time*trial)), data = long.group.checks)
+
+#print summary of the AOV output
+summary(group.checks.aov)
